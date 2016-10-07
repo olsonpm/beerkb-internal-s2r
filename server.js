@@ -26,8 +26,6 @@ const bGetPort = bPromise.promisify(portfinder.getPort)
   , highlight = chalk.green
   ;
 
-initDailyDbReset();
-
 
 //------//
 // Main //
@@ -37,6 +35,10 @@ const app = new Koa();
 
 const run = () => bGetPort()
   .tap(port => {
+
+    // assuming run only happens once
+    initDailyDbReset();
+
     getSqliteRouter({ dbPath })
       .then(router => {
         app.use(router.routes())
