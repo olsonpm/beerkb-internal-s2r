@@ -12,6 +12,7 @@ const bPromise = require('bluebird')
   , moment = require('moment')
   , path = require('path')
   , portfinder = require('portfinder')
+  , enableDestroy = require('server-destroy')
   , sqliteToRest = require('sqlite-to-rest')
   ;
 
@@ -26,6 +27,8 @@ const bGetPort = bPromise.promisify(portfinder.getPort)
   , highlight = chalk.green
   ;
 
+let server;
+
 
 //------//
 // Main //
@@ -34,19 +37,26 @@ const bGetPort = bPromise.promisify(portfinder.getPort)
 const app = new Koa();
 
 const run = () => bGetPort()
-  .tap(port => {
+  .then(port => {
 
     // assuming run only happens once
     initDailyDbReset();
 
-    getSqliteRouter({ dbPath })
-      .then(router => {
-        app.use(router.routes())
-          .use(router.allowedMethods())
-          .listen(port);
+    return bPromise.props({
+      router: getSqliteRouter({ dbPath })
+      , port
+    });
+  })
+  .then(({ router, port }) => {
+    server = app.use(router.routes())
+      .use(router.allowedMethods())
+      .listen(port);
 
-        console.log('beerkb-internal-s2r server listening on port: ' + highlight(port));
-      });
+    enableDestroy(server);
+
+    console.log('beerkb-internal-s2r server listening on port: ' + highlight(port));
+
+    return { server, port };
   });
 
 
