@@ -8,6 +8,7 @@
 const bPromise = require('bluebird')
   , chalk = require('chalk')
   , childProcess = require('child_process')
+  , fs = require('fs')
   , Koa = require('koa')
   , moment = require('moment')
   , path = require('path')
@@ -65,10 +66,10 @@ const run = () => bGetPort()
 //-------------//
 
 function initDailyDbReset() {
-  const dbDir = path.join(__dirname, '../src/internal-rest-api')
-    , resetFile = path.join(dbDir, 'beer.reset.sqlite3')
-    , curFile = path.join(dbDir, 'beer.sqlite3')
+  const curFile = dbPath
+    , logFile = path.join(__dirname, 'reset.log')
     , msTilMidnight =  moment().add(1, 'day').startOf('day').diff(moment())
+    , resetFile = path.join(__dirname, 'beer.reset.sqlite3')
     ;
 
   setTimeout(() => {
@@ -76,7 +77,16 @@ function initDailyDbReset() {
     setInterval(resetDb, 86400000);
   }, msTilMidnight);
 
-  function resetDb() { childProcess.exec('cp ' + resetFile + ' ' + curFile); }
+  function resetDb() {
+    const command = 'cp ' + resetFile + ' ' + curFile
+      , cb = (err, stdout, stderr) => {
+        if (err) fs.writeFile(logFile, err.toString());
+        else fs.writeFile(logFile, 'stdout: ' + stdout + '\n\nstderr: ' + stderr + '\n');
+      }
+      ;
+
+    childProcess.exec(command, cb);
+  }
 }
 
 //---------//
