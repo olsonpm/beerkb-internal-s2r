@@ -22,7 +22,7 @@
     "koa": "^2.0.0-alpha.7",
     "moment": "^2.15.1",
     "portfinder": "^1.0.7",
-    "server-destroy": "^1.0.1",
+    "server-destroy-promise": "github:olsonpm/server-destroy-promise#ee736f228f6379219f76b0605f445253692e5c08",
     "sqlite-to-rest": "github:olsonpm/sqlite-to-rest"
   }
 }

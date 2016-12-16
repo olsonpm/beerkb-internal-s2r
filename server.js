@@ -13,7 +13,7 @@ const bPromise = require('bluebird')
   , moment = require('moment')
   , path = require('path')
   , portfinder = require('portfinder')
-  , enableDestroy = require('server-destroy')
+  , { attachDestroyMethod } = require('server-destroy-promise')
   , sqliteToRest = require('sqlite-to-rest')
   ;
 
@@ -53,7 +53,7 @@ const run = () => bGetPort()
       .use(router.allowedMethods())
       .listen(port);
 
-    enableDestroy(server);
+    attachDestroyMethod(server);
 
     console.log('beerkb-internal-s2r server listening on port: ' + highlight(port));
 
