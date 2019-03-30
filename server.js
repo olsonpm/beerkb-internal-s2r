@@ -80,14 +80,16 @@ function initDailyDbReset() {
   function resetDb() {
     const command = 'cp ' + resetFile + ' ' + curFile
       , cb = (err, stdout, stderr) => {
-        if (err) fs.writeFile(logFile, err.toString());
-        else fs.writeFile(logFile, 'stdout: ' + stdout + '\n\nstderr: ' + stderr + '\n');
+        if (err) fs.writeFile(logFile, err.toString(), noop);
+        else fs.writeFile(logFile, 'stdout: ' + stdout + '\n\nstderr: ' + stderr + '\n', noop);
       }
       ;
 
     childProcess.exec(command, cb);
   }
 }
+
+function noop() {}
 
 //---------//
 // Exports //
